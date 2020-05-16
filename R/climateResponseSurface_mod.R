@@ -12,10 +12,22 @@ climateResponseSurface_mod_UI <- function(id, ...) {
 
 # Server-side function
 climateResponseSurface_mod_Server <- function(id,
-      plot.title, plot.subtitle,
-      grid.data, variable.x, label.x, variable.y, label.y, variable.z, label.z,
-      threshold, plot.resolution, color.low, color.high) {
-
+      plot.title,
+      plot.subtitle,
+      grid.data,
+      variable.x,
+      label.x,
+      variable.y,
+      label.y,
+      variable.z,
+      label.z,
+      threshold,
+      plot.resolution,
+      color.low,
+      color.high,
+      bins.low,
+      bins.high,
+      gcm.projections) {
 
   moduleServer(id,
 
@@ -45,13 +57,13 @@ climateResponseSurface_mod_Server <- function(id,
           z_data[z_data < min(zcut)] <- zcut[1]
           z_data[z_data > max(zcut)] <- zcut[length(zcut)]
 
-          df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = plot.resolution()) %>%
+          df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = as.numeric(as.character(plot.resolution()))) %>%
             mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = zlab),
                    z = as.numeric(as.character(z)))
 
 
           # Prepare plot
-          ggplot(df, aes(x = x, y = y)) +
+          p <- ggplot(df, aes(x = x, y = y)) +
             # Place z dimension
             geom_tile(aes(fill = z), color = NA) +
             # Set scales

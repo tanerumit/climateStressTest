@@ -1,7 +1,9 @@
 
 #devtools::install_github('daattali/shinycssloaders')
+#devtools::install_github("rstudio/shiny")
+#devtools::install_github("rstudio/htmltools")
 
-# Packages required
+# R Dependencies
 library(shiny)
 library(dplyr)
 library(tidyselect)
@@ -9,5 +11,23 @@ library(ggplot2)
 library(shinydashboard)
 library(DT)
 library(shinycssloaders)
+library(akima)
+library(shinyjs)
+library(shinyBS)
+library(htmlwidgets)
+library(reactlog)
+library(shinydashboardPlus)
+library(shinymaterial)
+library(shinyWidgets)
 
+#Shiny debugging
+options(shiny.reactlog = TRUE)
+
+# Misc R settings
 options(stringsAsFactors = FALSE)
+
+# Misc Shiny app settings
+options(shiny.autoreload = TRUE)
+
+options(scipen=999)
+
