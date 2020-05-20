@@ -6,6 +6,8 @@
 # R Dependencies
 library(shiny)
 library(dplyr)
+library(tidyr)
+library(magrittr)
 library(tidyselect)
 library(ggplot2)
 library(shinydashboard)
@@ -31,3 +33,5 @@ options(shiny.autoreload = TRUE)
 
 options(scipen=999)
 
+source("./global.R")
+source("./R/functions.R")
