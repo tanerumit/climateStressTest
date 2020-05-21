@@ -1,4 +1,7 @@
 
+source("./global.R")
+source("./R/functions.R")
+
 ### UI-SIDE --------------------------------------------------------------------
 
 #### Define body
@@ -384,21 +387,3 @@ appServer <- function(input, output, session) {
 ### APPLICATON -----------------------------------------------------------------
 
 shinyApp(ui = appUI, server = appServer)
-
-
-# observeEvent(input$btn.finetune, {
-#
-#   toggle("plot.resUI", animType = "fade")
-#   toggle("plot.colorsUI")
-#   toggle("plot.legendUI")
-#   toggle("plot.axis.intUI")
-#   toggle("variable.x.labelUI")
-#   toggle("variable.y.labelUI")
-#   toggle("variable.z.labelUI")
-#   toggle("plot.titleUI")
-# })
-# #### Hide Features
-# output$btn.finetuneUI  = renderUI({
-#   req(input$strTestData)
-#   actionButton("btn.finetune", "Fine Tuning")
-# })

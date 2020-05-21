@@ -22,6 +22,7 @@ library(shinydashboardPlus)
 library(shinymaterial)
 library(shinyWidgets)
 library(bsplus)
+library(data.table)
 
 #Shiny debugging
 options(shiny.reactlog = TRUE)
@@ -33,6 +34,3 @@ options(stringsAsFactors = FALSE)
 options(shiny.autoreload = TRUE)
 
 options(scipen=999)
-
-source("./global.R")
-source("./R/functions.R")
