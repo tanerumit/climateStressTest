@@ -17,7 +17,7 @@ body <- dashboardBody(
                       column(12,
                              strong("Upload Stress Test Data (csv format)"),
                              uiOutput('strTestDataUI'),
-                             bsTooltip(id = "strTestDataUI", title = "Data uploading", placement = "right")
+                             #bsTooltip(id = "strTestDataUI", title = "Data uploading", placement = "right")
                       ),
                     ),
                     fluidRow(
