@@ -85,7 +85,7 @@ appUI <- dashboardPage(
 
 
 
-### SERVER-SIDE ----------------------------------------------------------------
+### SERVER-SIDE ?slid----------------------------------------------------------------
 
 
 appServer <- function(input, output, session) {
@@ -288,6 +288,7 @@ appServer <- function(input, output, session) {
     sliderInput(inputId = "pthreshold",
                 label = "Threshold",
                 ticks = FALSE,
+                step  = NULL, #this needs to be fixed
                 min   = stressTestData() %>% pull(input$variable.z) %>% min()  %>% round(),
                 max   = stressTestData() %>% pull(input$variable.z) %>% max()  %>% round(),
                 value = stressTestData() %>% pull(input$variable.z) %>% mean() %>% round(),
