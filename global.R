@@ -21,6 +21,7 @@ library(reactlog)
 library(shinydashboardPlus)
 library(shinymaterial)
 library(shinyWidgets)
+library(bsplus)
 
 #Shiny debugging
 options(shiny.reactlog = TRUE)
