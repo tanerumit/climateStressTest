@@ -9,15 +9,21 @@ body <- dashboardBody(
   useShinyjs(),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
   fluidPage(
-    tabBox(width = 5, height = "625px", selected = "2. Base Plot",
-           tabPanel(title = "1. About"),
-           tabPanel(title = "2. Base Plot",
+    tabBox(width = 5, height = "625px", selected = "ReadMe",
+           tabPanel(title = "ReadMe",
+                    includeHTML("./www/ReadMe.html")
+           ),
+           tabPanel(title = "1. Draw Base Plot",
                     useShinyjs(),
                     fluidRow(
-                      column(12,
+                      column(9,
                              strong("Upload Stress Test Data (csv format)"),
                              uiOutput('strTestDataUI')
-                             #bsTooltip(id = "strTestDataUI", title = "Data uploading", placement = "right")
+                      ),
+                      column(3,
+                             br(),
+                             bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
+                             bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1")
                       ),
                     ),
                     fluidRow(
@@ -48,25 +54,35 @@ body <- dashboardBody(
                     )
 
            ),
-           tabPanel(title = "3. Climate Projections",
-                    strong("Upload Climate Projections Data (csv format)"),
-                    uiOutput('GCMDataUI'),
+           tabPanel(title = "2. Overlay Climate Info",
+                    fluidRow(
+                      column(9,
+                             strong("Upload Climate Projections Data (csv format)"),
+                             uiOutput('GCMDataUI')
+                      ),
+                      column(3,
+                             br(),
+                             bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
+                             bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
+                      ),
+                    ),
                     uiOutput('scenariosUI'),
                     uiOutput('modelsUI')
 
            )
     ),
     #box(title = "", height = "625px", width = 7, offset = 0,
-        column(6, align="center",
-               plotOutput("Surface1", height = "550px", width = "575px") %>% withSpinner(),
-               br(),
+        column(5, align="center",
+               plotOutput("Surface1", height = "625px", width = "650px") %>% withSpinner(),
+        ),
+        column(1, offset = 0,
                uiOutput("downloadPlotUI")
         ),
 
     #),
     tags$style(type = 'text/css',
                "footer{position: absolute; bottom:2%; right: 2%; padding:6px;}"),
-    HTML('<footer> Free to use &copy; 2020 </footer>')
+    HTML('<footer> &copy; 2020 </footer>')
     #downloadButton('downloadPlot','Download Plot')
     #div(class = "square",)
 
@@ -104,15 +120,37 @@ appServer <- function(input, output, session) {
 ### File Uploaders
 
   output$strTestDataUI = renderUI({
-    fileInput("strTestData", label = NULL, multiple = F, accept = ".csv", width = '92%')
+    fileInput("strTestData", label = NULL, multiple = F, accept = ".csv", width = '100%')
   })
 
   output$GCMDataUI     = renderUI({
     req(input$strTestData)
-    fileInput("GCMData", NULL, multiple = F, accept = ".csv", width = '92%')
+    fileInput("GCMData", NULL, multiple = F, accept = ".csv", width = '100%')
   })
 
+  #foo <- reactive({
+  #  req(SurfacePlot())
+ #  sapply(SurfacePlot(), is.numeric)
+ # })
 
+
+  output$strTestDataTbl = renderDataTable(
+
+    datatable(stressTestData(),
+        options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
+        class = 'cell-border stripe') %>%
+     formatRound(columns = sapply(stressTestData(), is.numeric), digits = 2) %>%
+     formatRound(columns = 0, digits = 0)
+  )
+
+  output$GCMDataTbl = renderDataTable(
+
+    datatable(GCMData(),
+              options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
+              class = 'cell-border stripe') %>%
+      formatRound(columns = sapply(GCMData(), is.numeric), digits = 2) %>%
+      formatRound(columns = 0, digits = 0)
+  )
 
 
 ### RENDER CLIMATE RESPONSE SURFACE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -173,7 +211,7 @@ appServer <- function(input, output, session) {
 
     # Prepare plot
     p <- ggplot(df, aes(x = x, y = y)) +
-      theme_light(base_size = 15) +
+      theme_light(base_size = 16) +
 
       # Place z dimension
       geom_tile(aes(fill = z), color = NA) +
@@ -192,7 +230,7 @@ appServer <- function(input, output, session) {
            title = input$plot.title) +
 
       # Set guides
-      guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1, ticks = F, barheight = 12, order = 1),
+      guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1, ticks = F, barheight = 20, order = 1),
              color = guide_legend(order = 2)
       )
 
@@ -245,11 +283,42 @@ appServer <- function(input, output, session) {
       label = "Download",
       style = "material-flat",
       color = "default",
-      size = "sm",
-      block = FALSE,
-      no_outline = FALSE
+      size = "sm"
     )
   })
+
+  output$stressTestDataTblBttnUI  = renderUI({
+    actionBttn(
+      inputId = "stressTestDataTblBttn",
+      label = "View",
+      style = "material-flat",
+      size = "sm",
+      color = "default"
+    )
+  })
+
+  output$stressTestDataDefaultBttnUI  = renderUI({
+    actionBttn(
+      inputId = "stressTestDataDefaultBttn",
+      label = "Example",
+      style = "material-flat",
+      size = "sm",
+      color = "default"
+    )
+  })
+
+  output$GCMDataTblBttnUI  = renderUI({
+    actionBttn(
+      inputId = "GCMDataTblBttn",
+      label = "View",
+      style = "material-flat",
+      size = "sm",
+      color = "default"
+    )
+  })
+
+
+
 
 
 
@@ -280,13 +349,13 @@ appServer <- function(input, output, session) {
   })
   output$plot.titleUI  = renderUI({
     req(input$strTestData)
-    textInput("plot.title", label = "Title", width = '92%')
+    textInput("plot.title", label = "Plot title", width = '92%')
   })
 
   output$pthresholdUI     = renderUI({
     req(input$strTestData)
     sliderInput(inputId = "pthreshold",
-                label = "Threshold",
+                label = "Performance Threshold",
                 ticks = FALSE,
                 step  = NULL, #this needs to be fixed
                 min   = stressTestData() %>% pull(input$variable.z) %>% min()  %>% round(),
@@ -339,6 +408,7 @@ appServer <- function(input, output, session) {
       filter(model %in% input$models)
 
   })
+
   scenarios_list <- reactive({
 
     dat <- GCMData() %>% pull(scenario) %>% unique()

@@ -23,6 +23,7 @@ library(shinymaterial)
 library(shinyWidgets)
 library(bsplus)
 library(data.table)
+library(DT)
 
 #Shiny debugging
 options(shiny.reactlog = TRUE)
