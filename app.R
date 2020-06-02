@@ -8,7 +8,6 @@ source("./R/functions.R")
 body <- dashboardBody(
   useShinyjs(),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
-
   fluidPage(
     p(div(HTML("This app visualizes climate response functions. To learn what a climate response function is, click on: <strong> <em> About </em> </strong>.
                To begin, click the tab: <strong> <em> 1. Draw Base Plot </em> </strong> and
@@ -29,8 +28,6 @@ body <- dashboardBody(
                     fluidRow(
                       column(9,
                              strong("Upload Stress Test Data (csv file)"),
-                             #div(HTML("Note: data has to in tabular format with columns corresponding to <em>x</em>, <em>y</em>, and <em>z</em> variables"),
-                             #    style = "font-size:12px"),
                              uiOutput('strTestDataUI')
                       ),
                       column(3,
@@ -106,7 +103,7 @@ body <- dashboardBody(
 
 ####  Define the dashboard
 appUI <- dashboardPage(
-  header  = dashboardHeader(title = "Plot Climate Surface"),
+  header  = dashboardHeader(title = "Plot Climate Surface", disable = TRUE),
   skin    = "black",
   sidebar = dashboardSidebar(disable = TRUE),
   body    = body,
