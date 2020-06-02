@@ -9,11 +9,9 @@ body <- dashboardBody(
   useShinyjs(),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
   fluidPage(
-    p(div(HTML("This app visualizes climate response functions. To learn what a climate response function is, click on: <strong> <em> About </em> </strong>.
+    p(div(HTML("<h4> <strong> CLIMATE RESPONSE SURFACES VISUALIZER </strong> </h4> This app visualizes climate response functions. To learn more, click the tab: <strong> <em> About </em> </strong>.
                To begin, click the tab: <strong> <em> 1. Draw Base Plot </em> </strong> and
-               upload your data. To overlap climate projections, click on: <strong> <em>
-               2. Overlay Climate Info </em> </strong> and
-               upload your data."), style="margin-left:15px;")),
+               upload your data. For superimposing climate projections, click: <strong> <em> 2. Overlay Climate Info </em> </strong> "), style="margin-left:15px;")),
 
     #p(div(HTML("This work is licensed under <a href=https://creativecommons.org/licenses/by-sa/4.0/> Creative Commons
     #           Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License </a>"), style="margin-left:15px;")),
@@ -21,7 +19,8 @@ body <- dashboardBody(
     tabBox(width = 5, height = "580px", selected = "1. Draw Base Plot",
            tabPanel(title = "About",
                     includeHTML("./www/readme2.html"),
-                    img(src='crs.png',style="width: 350px", align="center")
+                    br(),
+                    img(src='crs.png',style="width: 300px", align="center")
            ),
            tabPanel(title = "1. Draw Base Plot",
                     useShinyjs(),
