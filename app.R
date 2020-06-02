@@ -18,7 +18,7 @@ body <- dashboardBody(
     #p(div(HTML("This work is licensed under <a href=https://creativecommons.org/licenses/by-sa/4.0/> Creative Commons
     #           Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License </a>"), style="margin-left:15px;")),
 
-    tabBox(width = 5, height = "600px", selected = "1. Draw Base Plot",
+    tabBox(width = 5, height = "580px", selected = "1. Draw Base Plot",
            tabPanel(title = "About",
                     includeHTML("./www/readme2.html"),
                     img(src='crs.png',style="width: 350px", align="center")
@@ -86,7 +86,7 @@ body <- dashboardBody(
     ),
 
         column(5, align="center",
-               plotOutput("SurfacePlotUI", height = "600px", width = "625px") %>% withSpinner(),
+               plotOutput("SurfacePlotUI", height = "580px", width = "600px") %>% withSpinner(),
         ),
         column(1, offset = 0,
                uiOutput("downloadPlotUI")
@@ -219,7 +219,7 @@ appServer <- function(input, output, session) {
     p <- ggplot(df, aes(x = x, y = y)) +
 
       # Define theme
-      theme_light(base_size = 16) +
+      theme_light(base_size = 15) +
 
       # Place z dimension
       geom_tile(aes(fill = z), color = NA) +
