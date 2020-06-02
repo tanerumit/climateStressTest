@@ -389,19 +389,19 @@ appServer <- function(input, output, session) {
   #### CHeck Boxes
   output$plot.resUI       = renderUI({
     req(input$strTestData)
-    awesomeCheckbox("plot.res", label="High Resolution", value = FALSE)
+    awesomeCheckbox("plot.res", label="Increase plot resolution", value = FALSE)
   })
   output$plot.colorsUI    = renderUI({
     req(input$strTestData)
-    awesomeCheckbox("plot.colors", label="Switch Colors", value = FALSE)
+    awesomeCheckbox("plot.colors", label="Flip fill colors", value = FALSE)
   })
   output$plot.legendUI    = renderUI({
     req(input$strTestData)
-    awesomeCheckbox("plot.legend", label= "Hide Legend", value = FALSE)
+    awesomeCheckbox("plot.legend", label= "Hide plot legend", value = FALSE)
   })
   output$plot.axis.intUI  = renderUI({
     req(input$strTestData)
-    awesomeCheckbox("plot.axis.int", label= "Override Intervals", value = FALSE)
+    awesomeCheckbox("plot.axis.int", label= "Override axis intervals", value = FALSE)
   })
 
 ### GCM PROJECTIONS TAB ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
