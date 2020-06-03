@@ -15,11 +15,11 @@ body <- dashboardBody(
     #p(div(HTML("This work is licensed under <a href=https://creativecommons.org/licenses/by-sa/4.0/> Creative Commons
     #           Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License </a>"), style="margin-left:15px;")),
 
-    tabBox(width = 5, height = "560px", selected = "About",
+    tabBox(width = 5, height = "540px", selected = "About",
            tabPanel(title = "About",
                     includeHTML("./www/readme2.html"),
                     br(),
-                    img(src='crs.png',style="width: 300px", align="center")
+                    img(src='crs.png',style="width: 275px", align="center")
            ),
            tabPanel(title = "1.Base Plot",
                     useShinyjs(),
@@ -84,7 +84,7 @@ body <- dashboardBody(
     ),
 
         column(5, align="center",
-               plotOutput("SurfacePlotUI", height = "560px", width = "600px") %>% withSpinner(),
+               plotOutput("SurfacePlotUI", height = "540px", width = "600px") %>% withSpinner(),
         ),
         column(1, offset = 0,
                uiOutput("downloadPlotUI")
@@ -92,23 +92,21 @@ body <- dashboardBody(
 
     #),
     tags$style(type = 'text/css',
-               "footer{position: absolute; bottom:2%; right: 2%; padding:6px;}")
-
+               "footer{position: absolute; bottom:2%; right: 2%; padding:6px;}"),
+    HTML('<footer> Contact: M. Umit Taner <a href="mailto:umit.taner@deltares.nl"> (email) </a> </footer>')
 
 
   )
 )
 
 ####  Define the dashboard
-appUI <- dashboardPage(
+appUI <-  dashboardPage(
   header  = dashboardHeader(title = "Plot Climate Surface", disable = TRUE),
   skin    = "black",
   sidebar = dashboardSidebar(disable = TRUE),
   body    = body,
   title = "ClimateSurface"
 )
-
-
 
 ### SERVER-SIDE ----------------------------------------------------------------
 
@@ -158,20 +156,17 @@ appServer <- function(input, output, session) {
 
   SurfacePlot <- reactive({
 
-    col1 <- "red2"
-    col2 <- "royalblue3"
+    req(input$pthreshold, input$variable.x, input$variable.y, input$variable.z)
 
-    #rcp_col <- c("#08519c", "#abd9e9", "#fe9929", "#f03b20")
+    col1 <- "red2"; col2 <- "royalblue3"
     rcp_col <- c("#08519c", "cyan3", "#fe9929", "#f03b20")
 
     # Set color scheme
-    color.high <- col2
-    color.low  <- col1
-    res <- 100
-
     if(!is.null(input$plot.colors)) {
       if(input$plot.colors == TRUE) {
         color.high <- col1; color.low  <- col2
+      } else {
+        color.high <- col2; color.low  <- col1
       }
     }
 
@@ -182,9 +177,7 @@ appServer <- function(input, output, session) {
 
     # Default bin number and mid.point
     z_bins <- pretty(c(min(z_data)*0.85, max(z_data)*1.15), 10)
-    #z_mid  <- round(mean(z_data))
-
-    if(!is.null(input$pthreshold)) {z_mid  <- input$pthreshold}
+    z_mid  <- input$pthreshold
 
     # Specify x, y breaks
     x_breaks <- unique(x_data)
@@ -199,7 +192,7 @@ appServer <- function(input, output, session) {
     z_data[z_data < min(zcut)] <- zcut[1]
     z_data[z_data > max(zcut)] <- zcut[length(zcut)]
 
-    if(!is.null(input$plot.res)) {res <- ifelse(input$plot.res == TRUE, 300, 100)}
+    res <- ifelse(input$plot.res == TRUE, 300, 100)
 
     df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = res) %>%
       mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = variable.z.label)) %>%
