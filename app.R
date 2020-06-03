@@ -9,20 +9,19 @@ body <- dashboardBody(
   useShinyjs(),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
   fluidPage(
-    p(div(HTML("<h4> <strong> CLIMATE RESPONSE SURFACES VISUALIZER </strong> </h4> This app visualizes climate response functions. To learn more, click the tab: <strong> <em> About </em> </strong>.
-               To begin, click the tab: <strong> <em> 1. Draw Base Plot </em> </strong> and
-               upload your data. For superimposing climate projections, click: <strong> <em> 2. Overlay Climate Info </em> </strong> "), style="margin-left:15px;")),
+    p(div(HTML("<h4> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h4> This app visualizes climate response functions. To learn more, click the tab: <strong> <em> About </em> </strong>.
+               To begin, click the tab: <strong> <em> 1.Base Plot </em> </strong>. For superimposing climate projections, click: <strong> <em> 2.Climate Info </em> </strong> "), style="margin-left:15px;")),
 
     #p(div(HTML("This work is licensed under <a href=https://creativecommons.org/licenses/by-sa/4.0/> Creative Commons
     #           Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License </a>"), style="margin-left:15px;")),
 
-    tabBox(width = 5, height = "580px", selected = "1. Draw Base Plot",
+    tabBox(width = 5, height = "560px", selected = "About",
            tabPanel(title = "About",
                     includeHTML("./www/readme2.html"),
                     br(),
                     img(src='crs.png',style="width: 300px", align="center")
            ),
-           tabPanel(title = "1. Draw Base Plot",
+           tabPanel(title = "1.Base Plot",
                     useShinyjs(),
                     fluidRow(
                       column(9,
@@ -65,7 +64,7 @@ body <- dashboardBody(
                     )
 
            ),
-           tabPanel(title = "2. Overlay Climate Info",
+           tabPanel(title = "2.Climate Info",
                     #strong("Historical climate"),
                     strong("Upload Climate Projections Data (csv format)"),
                     fluidRow(
@@ -85,7 +84,7 @@ body <- dashboardBody(
     ),
 
         column(5, align="center",
-               plotOutput("SurfacePlotUI", height = "580px", width = "600px") %>% withSpinner(),
+               plotOutput("SurfacePlotUI", height = "560px", width = "600px") %>% withSpinner(),
         ),
         column(1, offset = 0,
                uiOutput("downloadPlotUI")
