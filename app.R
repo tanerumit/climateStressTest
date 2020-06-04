@@ -7,25 +7,24 @@ source("./R/functions.R")
 #### Define body
 body <- dashboardBody(
   useShinyjs(),
+  includeCSS("www/style.css"),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
   fluidPage(
-    p(div(HTML("<h4> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h4> This app visualizes climate response functions. To learn more, click the tab: <strong> <em> About </em> </strong>.
-               To begin, click the tab: <strong> <em> 1.Base Plot </em> </strong>. For superimposing climate projections, click: <strong> <em> 2.Climate Info </em> </strong> "), style="margin-left:15px;")),
-
-    #p(div(HTML("This work is licensed under <a href=https://creativecommons.org/licenses/by-sa/4.0/> Creative Commons
-    #           Attribution-ShareAlike 4.0 International (CC BY-SA 4.0) License </a>"), style="margin-left:15px;")),
-
+    p(div(HTML("<h3> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h3>"), class = "title_Style")),
+    p(div(HTML("This app visualizes climate response functions. To learn more, click on: <strong><em>About</em></strong>.
+               To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections, select: <strong><em>2.Climate Info</em></strong>."),
+          class = "subtitle_Style")),
     tabBox(width = 5, height = "540px", selected = "About",
            tabPanel(title = "About",
-                    includeHTML("./www/readme2.html"),
+                    includeHTML("./www/About.html"),
                     br(),
-                    img(src='crs.png',style="width: 275px", align="center")
+                    img(src='crs.png',style="width: 300px", align="center")
            ),
            tabPanel(title = "1.Base Plot",
                     useShinyjs(),
                     fluidRow(
                       column(9,
-                             strong("Upload Stress Test Data (csv file)"),
+                             strong("Upload Stress Test Data (csv)"),
                              uiOutput('strTestDataUI')
                       ),
                       column(3,
@@ -50,10 +49,6 @@ body <- dashboardBody(
                       column(7, uiOutput('pthresholdUI')),
                       column(5, uiOutput('plot.titleUI'))
                     ),
-                    #fluidRow(
-                    #  column(7, uiOutput('pthresholdUI'))
-                    #),
-                    #tags$em("Fine tuning"),
                     fluidRow(
                       column(6, uiOutput("plot.legendUI")),
                       column(6, uiOutput("plot.axis.intUI"))
@@ -66,7 +61,7 @@ body <- dashboardBody(
            ),
            tabPanel(title = "2.Climate Info",
                     #strong("Historical climate"),
-                    strong("Upload Climate Projections Data (csv format)"),
+                    strong("Upload Climate Projections Data (csv)"),
                     fluidRow(
                       column(9, uiOutput('GCMDataUI')),
                       column(3,
@@ -118,8 +113,7 @@ appServer <- function(input, output, session) {
   stressTestData <- reactive({
 
     req(input$strTestData)
-    read.csv(input$strTestData$datapath, header = TRUE, sep = ",",
-             stringsAsFactors = TRUE, row.names = NULL)
+    read.csv(input$strTestData$datapath, header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
   })
 
 ### File Uploaders
@@ -229,7 +223,7 @@ appServer <- function(input, output, session) {
            title = input$plot.title) +
 
       # Set guides
-      guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1.5, ticks = F, barheight = 25, order = 1),
+      guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1.5, ticks = F, barheight = 20, order = 1),
              color = guide_legend(order = 2)
       )
 
@@ -329,42 +323,41 @@ appServer <- function(input, output, session) {
   })
 
 
-
-
-
-
-
   output$variable.xUI  = renderUI({
+    req(stressTestData())
     pickerInput("variable.x", label = "X-Axis variable: ", choices = colnames(stressTestData()),
                 selected = colnames(stressTestData())[1], width = '100%')
+
   })
   output$variable.yUI  = renderUI({
+    req(stressTestData())
     pickerInput("variable.y", label = "Y-Axis variable: ", choices = colnames(stressTestData()),
                 selected = colnames(stressTestData())[2], width = '100%')
   })
   output$variable.zUI  = renderUI({
+    req(stressTestData())
     pickerInput("variable.z", label = "Z-Axis: variable", choices = colnames(stressTestData()),
                 selected = colnames(stressTestData())[3], width = '100%')
   })
   output$variable.x.labelUI  = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     textInput("variable.x.label", label = "Label", width = '85%')
   })
   output$variable.y.labelUI  = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     textInput("variable.y.label", label = "Label", width = '85%')
   })
   output$variable.z.labelUI  = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     textInput("variable.z.label", label = "Label", width = '85%')
   })
   output$plot.titleUI  = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     textInput("plot.title", label = "Plot title", width = '85%')
   })
 
   output$pthresholdUI     = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     sliderInput(inputId = "pthreshold",
                 label = "Performance Threshold",
                 ticks = FALSE,
@@ -379,19 +372,19 @@ appServer <- function(input, output, session) {
 
   #### CHeck Boxes
   output$plot.resUI       = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     awesomeCheckbox("plot.res", label="Increase plot resolution", value = FALSE)
   })
   output$plot.colorsUI    = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     awesomeCheckbox("plot.colors", label="Flip fill colors", value = FALSE)
   })
   output$plot.legendUI    = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     awesomeCheckbox("plot.legend", label= "Hide plot legend", value = FALSE)
   })
   output$plot.axis.intUI  = renderUI({
-    req(input$strTestData)
+    req(stressTestData())
     awesomeCheckbox("plot.axis.int", label= "Override axis intervals", value = FALSE)
   })
 
@@ -488,6 +481,7 @@ appServer <- function(input, output, session) {
   })
 
 
+  session$onSessionEnded(stopApp)
 }
 
 ### APPLICATON -----------------------------------------------------------------

@@ -1,20 +1,36 @@
 
 
-.square {
-  width: 100%;
-  padding-bottom: 100%;
-  position: relative;
-  background-color: #2980b9;
+.title_Style {
+	font-family: 'Impact';
+	color: black;
+	line-height: 1.5em;
+	margin-left:15px;
 }
 
-.square:after {
-  content: "";
-  display: block;
-  padding-bottom: 100%;
+.subtitle_Style {
+	font-family: 'Candara';
+	color: black;
+	margin-bottom:1.5em;
+	margin-left:15px;
 }
 
-.content {
-  position: absolute;
-  width: 100%;
-  height: 100%;
+
+.boxtext {
+	font-family: 'Helvetica';
+	color: black;
+	margin-left:10px;
+	margin-right:15px;
+}
+
+
+
+/* Styles for selectize menus */
+
+#large .selectize-input {
+  line-height: 40px;
+}
+
+#large .selectize-dropdown {
+  line-height: 30px;
+
 }
