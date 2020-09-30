@@ -12,7 +12,8 @@ body <- dashboardBody(
   fluidPage(
     p(div(HTML("<h3> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h3>"), class = "title_Style")),
     p(div(HTML("This app visualizes climate response functions. To learn more, click on: <strong><em>About</em></strong>.
-               To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections, select: <strong><em>2.Climate Info</em></strong>."),
+               To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections,
+               select: <strong><em>2.Climate Info</em></strong>."),
           class = "subtitle_Style")),
     tabBox(width = 5, height = "540px", selected = "About",
            tabPanel(title = "About",
@@ -188,9 +189,18 @@ appServer <- function(input, output, session) {
 
     res <- ifelse(input$plot.res == TRUE, 300, 100)
 
+    #df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = res) %>%
+    #  mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = variable.z.label)) %>%
+    #  mutate(z = as.numeric(as.character(z)))
+
+
     df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = res) %>%
+      mutate(zint = z) %>%
       mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = variable.z.label)) %>%
-      mutate(z = as.numeric(as.character(z)))
+      mutate(z = as.numeric(as.character(z))) %>%
+      group_by(x) %>%
+      mutate(zthold = abs(zint - z_mid)) %>%
+      mutate(tline = ifelse(zthold == min(zthold), 1, 0))
 
     if(!is.null(input$plot.axis.int)) {
 
@@ -200,6 +210,7 @@ appServer <- function(input, output, session) {
       }
     }
 
+    df2 <- filter(df, tline>0)
 
     p <- ggplot(df, aes(x = x, y = y)) +
 
@@ -225,7 +236,10 @@ appServer <- function(input, output, session) {
       # Set guides
       guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1.5, ticks = F, barheight = 20, order = 1),
              color = guide_legend(order = 2)
-      )
+      ) +
+
+      # Threshold line
+      geom_line(aes(x, y), df2, size = 1)
 
       # Legend ON/OFF
       if(!is.null(input$plot.legend)) {
