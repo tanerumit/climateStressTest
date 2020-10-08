@@ -5,6 +5,9 @@ account: cloudwater
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2336646
-bundleId: 3227495
+bundleId: 3687389
 url: https://cloudwater.shinyapps.io/climatestresstest/
-when: 1591265251.05163
+when: 1601472743.69808
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: etc/climateResponseSurface.R|R/climateResponseSurface_mod.R|R/fileUpload_mod.R|R/plotDownload_mod.R|R/test_surface.R

@@ -4,85 +4,134 @@ source("./R/functions.R")
 
 ### UI-SIDE --------------------------------------------------------------------
 
-#### Define body
+#### Dashboard sidebar elements
+
+sidebar = dashboardSidebar(
+  width = 300,
+  sidebarMenu(
+    br(),br(),br(),
+    p("This app visualizes climate response functions"),
+    menuItem("About", tabName="rank", icon=NULL),
+    menuItem("1. Base Plot", tabName="rank", icon=NULL,
+      useShinyjs(),
+      strong("Upload Stress Test Data (csv)"),
+      uiOutput('strTestDataUI'),
+      bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
+      bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1"),
+     uiOutput('variable.xUI'),
+     uiOutput('variable.yUI'),
+     uiOutput('variable.zUI'),
+     uiOutput('pthresholdUI')
+    ),
+    menuItem("2. Climate Info", tabName="rank", icon=NULL,
+       #strong("Historical climate"),
+       strong("Upload Climate Projections Data (csv)"),
+       fluidRow(
+         column(9, uiOutput('GCMDataUI')),
+         column(3,
+                #br(),
+                bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
+                bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
+         ),
+       ),
+       uiOutput('scenariosUI'),
+       uiOutput('modelsUI'),
+       uiOutput('gcm.contoursUI'),
+       uiOutput('plot.histvalueUI')
+
+    ),
+    menuItem("3. Labeling", tabName="rank", icon=NULL,
+             uiOutput('plot.titleUI'),
+             uiOutput('variable.x.labelUI'),
+             uiOutput('variable.y.labelUI'),
+             uiOutput('variable.z.labelUI'),
+             uiOutput("plot.legendUI"),
+             uiOutput("plot.axis.intUI"),
+             uiOutput("plot.colorsUI"),
+             uiOutput("plot.resUI")
+    )
+  ) # sidebarMenu close
+) #sidebar close
+
+#### Dashboard body elements
 body <- dashboardBody(
   useShinyjs(),
   includeCSS("www/style.css"),
   tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
   fluidPage(
-    p(div(HTML("<h3> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h3>"), class = "title_Style")),
-    p(div(HTML("This app visualizes climate response functions. To learn more, click on: <strong><em>About</em></strong>.
-               To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections,
-               select: <strong><em>2.Climate Info</em></strong>."),
-          class = "subtitle_Style")),
-    tabBox(width = 5, height = "540px", selected = "About",
-           tabPanel(title = "About",
-                    includeHTML("./www/About.html"),
-                    br(),
-                    img(src='crs.png',style="width: 300px", align="center")
-           ),
-           tabPanel(title = "1.Base Plot",
-                    useShinyjs(),
-                    fluidRow(
-                      column(9,
-                             strong("Upload Stress Test Data (csv)"),
-                             uiOutput('strTestDataUI')
-                      ),
-                      column(3,
-                             br(), #br(), br(), br(),
-                             bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
-                             bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1")
-                      ),
-                    ),
-                    fluidRow(
-                      column(7, uiOutput('variable.xUI')),
-                      column(5, uiOutput('variable.x.labelUI'))
-                    ),
-                    fluidRow(
-                      column(7, uiOutput('variable.yUI')),
-                      column(5, uiOutput('variable.y.labelUI'))
-                    ),
-                    fluidRow(
-                      column(7, uiOutput('variable.zUI')),
-                      column(5, uiOutput('variable.z.labelUI'))
-                    ),
-                    fluidRow(
-                      column(7, uiOutput('pthresholdUI')),
-                      column(5, uiOutput('plot.titleUI'))
-                    ),
-                    fluidRow(
-                      column(6, uiOutput("plot.legendUI")),
-                      column(6, uiOutput("plot.axis.intUI"))
-                    ),
-                    fluidRow(
-                      column(6, uiOutput("plot.colorsUI")),
-                      column(6, uiOutput("plot.resUI"))
-                    )
+  #  p(div(HTML("<h3> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h3>"), class = "title_Style")),
+  #  p(div(HTML("This app visualizes climate response functions. To learn more, click on: <strong><em>About</em></strong>.
+  #             To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections,
+  #             select: <strong><em>2.Climate Info</em></strong>."),
+  #        class = "subtitle_Style")),
+    #tabBox(width = 5, height = "540px", selected = "About",
+           # tabPanel(title = "About",
+           #          includeHTML("./www/About.html"),
+           #          br(),
+           #          img(src='crs.png',style="width: 300px", align="center")
+           # ),
+           # tabPanel(title = "1.Base Plot",
+           #          useShinyjs(),
+           #          fluidRow(
+           #            column(9,
+           #                   strong("Upload Stress Test Data (csv)"),
+           #                   uiOutput('strTestDataUI')
+           #            ),
+           #            column(3,
+           #                   br(), #br(), br(), br(),
+           #                   bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
+           #                   bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1")
+           #            ),
+           #          ),
+           #          fluidRow(
+           #            column(7, uiOutput('variable.xUI')),
+           #            column(5, uiOutput('variable.x.labelUI'))
+           #          ),
+           #          fluidRow(
+           #            column(7, uiOutput('variable.yUI')),
+           #            column(5, uiOutput('variable.y.labelUI'))
+           #          ),
+           #          fluidRow(
+           #            column(7, uiOutput('variable.zUI')),
+           #            column(5, uiOutput('variable.z.labelUI'))
+           #          ),
+           #          fluidRow(
+           #            column(7, uiOutput('pthresholdUI')),
+           #            column(5, uiOutput('plot.titleUI'))
+           #          ),
+           #          fluidRow(
+           #            column(6, uiOutput("plot.legendUI")),
+           #            column(6, uiOutput("plot.axis.intUI"))
+           #          ),
+           #          fluidRow(
+           #            column(6, uiOutput("plot.colorsUI")),
+           #            column(6, uiOutput("plot.resUI"))
+           #          )
+           #
+           # ),
+           # tabPanel(title = "2.Climate Info",
+           #          #strong("Historical climate"),
+           #          strong("Upload Climate Projections Data (csv)"),
+           #          fluidRow(
+           #            column(9, uiOutput('GCMDataUI')),
+           #            column(3,
+           #                   #br(),
+           #                   bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
+           #                   bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
+           #            ),
+           #          ),
+           #          uiOutput('scenariosUI'),
+           #          uiOutput('modelsUI'),
+           #          uiOutput('gcm.contoursUI'),
+           #          uiOutput('plot.histvalueUI')
+           #
+           # )
+    #),
 
-           ),
-           tabPanel(title = "2.Climate Info",
-                    #strong("Historical climate"),
-                    strong("Upload Climate Projections Data (csv)"),
-                    fluidRow(
-                      column(9, uiOutput('GCMDataUI')),
-                      column(3,
-                             #br(),
-                             bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
-                             bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
-                      ),
-                    ),
-                    uiOutput('scenariosUI'),
-                    uiOutput('modelsUI'),
-                    uiOutput('gcm.contoursUI'),
-                    uiOutput('plot.histvalueUI')
-
-           )
-    ),
-
-        column(5, align="center",
-               plotOutput("SurfacePlotUI", height = "540px", width = "600px") %>% withSpinner(),
+        column(11, align="center",
+               plotOutput("SurfacePlotUI", height = "570px", width = "630px") %>% withSpinner(),
         ),
-        column(1, offset = 0,
+        column(1,
                uiOutput("downloadPlotUI")
         ),
 
@@ -97,11 +146,12 @@ body <- dashboardBody(
 
 ####  Define the dashboard
 appUI <-  dashboardPage(
-  header  = dashboardHeader(title = "Plot Climate Surface", disable = TRUE),
   skin    = "black",
-  sidebar = dashboardSidebar(disable = TRUE),
-  body    = body,
-  title = "ClimateSurface"
+  header  = dashboardHeader(
+    title = "Climate Surface Visualizer",
+    titleWidth = 280),
+  sidebar = sidebar,
+  body    = body
 )
 
 ### SERVER-SIDE ----------------------------------------------------------------
@@ -319,7 +369,7 @@ appServer <- function(input, output, session) {
     req(input$strTestData)
     actionBttn(
       inputId = "stressTestDataTblBttn",
-      label = "View",
+      label = "View Data",
       style = "material-flat",
       size = "sm",
       color = "default"
