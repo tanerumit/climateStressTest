@@ -1,4 +1,17 @@
 
+.boxed {
+  padding-top: 15px;
+  padding-right: 15px;
+  padding-bottom: 15px;
+  padding-left: 15px;
+  word-wrap: normal;
+  border: 1px black;
+  white-space: normal;
+  word-break: break-all;
+  font-family: "Lato";
+	color: black;
+
+}
 
 .title_Style {
 	font-family: "Lato";
@@ -18,7 +31,7 @@
 .boxtext {
 	font-family: "Noto Sans";
 	color: black;
-	margin-left:10px;
+	margin-left:15px;
 	margin-right:15px;
 }
 
@@ -34,3 +47,15 @@
   line-height: 30px;
 
 }
+
+.main-header .logo {
+  padding: 0px 15px;
+  text-align: left;
+}
+
+/* ------------------------- SHINYDASHBOARD THEME --------------------------- */
+
+
+/* body */
+.content-wrapper, .right-side {
+background-color: #FFFFFF;

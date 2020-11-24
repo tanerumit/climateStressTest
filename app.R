@@ -1,210 +1,262 @@
 
-source("./global.R")
-source("./R/functions.R")
+source("./src/global.R")
+source("./src/functions.R")
+
+
 
 ### UI-SIDE --------------------------------------------------------------------
 
 #### Dashboard sidebar elements
 
 sidebar = dashboardSidebar(
-  width = 300,
+  width = 400,
+  useShinyjs(),
+  includeCSS("www/style.css"),
   sidebarMenu(
-    br(),br(),br(),
-    p("This app visualizes climate response functions"),
-    menuItem("About", tabName="rank", icon=NULL),
-    menuItem("1. Base Plot", tabName="rank", icon=NULL,
+    br(),
+    #uiOutput('demoButtonUI'),
+    convertMenuItem(menuItem("About", tabName="Page1", selected = TRUE), tabName="Page1"),
+    convertMenuItem(menuItem("1. Create Response Surface", tabName="Page2", icon=NULL,
       useShinyjs(),
-      strong("Upload Stress Test Data (csv)"),
-      uiOutput('strTestDataUI'),
-      bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
-      bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1"),
-     uiOutput('variable.xUI'),
-     uiOutput('variable.yUI'),
-     uiOutput('variable.zUI'),
-     uiOutput('pthresholdUI')
-    ),
-    menuItem("2. Climate Info", tabName="rank", icon=NULL,
-       #strong("Historical climate"),
-       strong("Upload Climate Projections Data (csv)"),
-       fluidRow(
-         column(9, uiOutput('GCMDataUI')),
-         column(3,
-                #br(),
-                bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
-                bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
-         ),
-       ),
-       uiOutput('scenariosUI'),
-       uiOutput('modelsUI'),
-       uiOutput('gcm.contoursUI'),
-       uiOutput('plot.histvalueUI')
+      uiOutput('stressTestDataUploadUI'),
+      #bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('stressTestDataTbl')),
+      #bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1"),
+      uiOutput('variable.xUI'),
+      uiOutput('variable.yUI'),
+      uiOutput('variable.zUI'),
+      uiOutput('pthresholdUI')
+    ),tabName="Page2"),
+    convertMenuItem(menuItem("2. Overlay Climate Information", tabName="Page2",
+      #uiOutput('GCMDataTblBttn_DefaultUI'),
+      uiOutput('GCMDataUI'),
+      #bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
+      #bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2"),
+      uiOutput('scenariosUI'),
+      uiOutput('modelsUI'),
+      uiOutput('gcm.marginalUI')
+    ),tabName="Page2"),
+    convertMenuItem(menuItem("3. Adjust scales", tabName="Page2", icon=NULL,
+      uiOutput('variable.z.minUI'),
+      uiOutput('variable.z.maxUI'),
+      uiOutput('variable.z.binUI'),
+      uiOutput("plot.colorsUI"),
+      uiOutput("plot.legendUI")
+      ),tabName="Page2"),
+    convertMenuItem(menuItem("4. Labels", tabName="Page2", icon=NULL,
+       uiOutput('plot.titleUI'),
+       uiOutput('variable.x.labelUI'),
+       uiOutput('variable.y.labelUI'),
+       uiOutput('variable.z.labelUI')
+    ),tabName="Page2")
+  ), # sidebarMenu close
+  tags$style(type = 'text/css',
+             "footer{position: absolute; bottom:2%; left: 5%; padding:6px; color:gray}"),
+  HTML('<footer> <a href="mailto:umit.taner@deltares.nl">Contact</a> </footer>')
 
-    ),
-    menuItem("3. Labeling", tabName="rank", icon=NULL,
-             uiOutput('plot.titleUI'),
-             uiOutput('variable.x.labelUI'),
-             uiOutput('variable.y.labelUI'),
-             uiOutput('variable.z.labelUI'),
-             uiOutput("plot.legendUI"),
-             uiOutput("plot.axis.intUI"),
-             uiOutput("plot.colorsUI"),
-             uiOutput("plot.resUI")
-    )
-  ) # sidebarMenu close
-) #sidebar close
+  )#sidebar close
 
 #### Dashboard body elements
 body <- dashboardBody(
+  customOneNote,
   useShinyjs(),
-  includeCSS("www/style.css"),
-  tags$head(tags$link(rel="stylesheet", type="text/css", href="custom.css")),
-  fluidPage(
-  #  p(div(HTML("<h3> <strong> CLIMATE RESPONSE SURFACE VISUALIZER </strong> </h3>"), class = "title_Style")),
-  #  p(div(HTML("This app visualizes climate response functions. To learn more, click on: <strong><em>About</em></strong>.
-  #             To begin, select: <strong><em> 1.Base Plot </em></strong>. For superimposing climate projections,
-  #             select: <strong><em>2.Climate Info</em></strong>."),
-  #        class = "subtitle_Style")),
-    #tabBox(width = 5, height = "540px", selected = "About",
-           # tabPanel(title = "About",
-           #          includeHTML("./www/About.html"),
-           #          br(),
-           #          img(src='crs.png',style="width: 300px", align="center")
-           # ),
-           # tabPanel(title = "1.Base Plot",
-           #          useShinyjs(),
-           #          fluidRow(
-           #            column(9,
-           #                   strong("Upload Stress Test Data (csv)"),
-           #                   uiOutput('strTestDataUI')
-           #            ),
-           #            column(3,
-           #                   br(), #br(), br(), br(),
-           #                   bs_modal(id = "modal1", title = "Stress test data", body = DTOutput('strTestDataTbl')),
-           #                   bs_attach_modal(uiOutput("stressTestDataTblBttnUI"), id_modal = "modal1")
-           #            ),
-           #          ),
-           #          fluidRow(
-           #            column(7, uiOutput('variable.xUI')),
-           #            column(5, uiOutput('variable.x.labelUI'))
-           #          ),
-           #          fluidRow(
-           #            column(7, uiOutput('variable.yUI')),
-           #            column(5, uiOutput('variable.y.labelUI'))
-           #          ),
-           #          fluidRow(
-           #            column(7, uiOutput('variable.zUI')),
-           #            column(5, uiOutput('variable.z.labelUI'))
-           #          ),
-           #          fluidRow(
-           #            column(7, uiOutput('pthresholdUI')),
-           #            column(5, uiOutput('plot.titleUI'))
-           #          ),
-           #          fluidRow(
-           #            column(6, uiOutput("plot.legendUI")),
-           #            column(6, uiOutput("plot.axis.intUI"))
-           #          ),
-           #          fluidRow(
-           #            column(6, uiOutput("plot.colorsUI")),
-           #            column(6, uiOutput("plot.resUI"))
-           #          )
-           #
-           # ),
-           # tabPanel(title = "2.Climate Info",
-           #          #strong("Historical climate"),
-           #          strong("Upload Climate Projections Data (csv)"),
-           #          fluidRow(
-           #            column(9, uiOutput('GCMDataUI')),
-           #            column(3,
-           #                   #br(),
-           #                   bs_modal(id = "modal2", title = "GCM projections", body = DTOutput('GCMDataTbl')),
-           #                   bs_attach_modal(uiOutput("GCMDataTblBttnUI"), id_modal = "modal2")
-           #            ),
-           #          ),
-           #          uiOutput('scenariosUI'),
-           #          uiOutput('modelsUI'),
-           #          uiOutput('gcm.contoursUI'),
-           #          uiOutput('plot.histvalueUI')
-           #
-           # )
-    #),
+  tabItems(
+    tabItem(
+      tabName = "Page1",
+      includeHTML("www/About.html")
+    ),
+    tabItem(
+      tabName = "Page2",
+      fluidPage(
+        br(), br(),
+        column(12, align="center",
+           plotOutput("SurfacePlotUI", height = "700px", width = "800px") %>% withSpinner(),
+           br(),
+           uiOutput("downloadPlotUI")
+        )
+      ) #fluidpage close
+    ) #tabitem close
+  ) #tabitems close
+) # body close
 
-        column(11, align="center",
-               plotOutput("SurfacePlotUI", height = "570px", width = "630px") %>% withSpinner(),
-        ),
-        column(1,
-               uiOutput("downloadPlotUI")
-        ),
-
-    #),
-    tags$style(type = 'text/css',
-               "footer{position: absolute; bottom:2%; right: 2%; padding:6px;}"),
-    HTML('<footer> Contact: M. Umit Taner <a href="mailto:umit.taner@deltares.nl"> (email) </a> </footer>')
-
-
-  )
-)
+loadingState()
 
 ####  Define the dashboard
 appUI <-  dashboardPage(
-  skin    = "black",
   header  = dashboardHeader(
-    title = "Climate Surface Visualizer",
-    titleWidth = 280),
+    title = "Climate Surface Viz Tool",
+    titleWidth = 360),
   sidebar = sidebar,
   body    = body
 )
 
+
+
+
+################################################################################
+
+
 ### SERVER-SIDE ----------------------------------------------------------------
 
+#demoButtonUI  /// default data button UI
+#demoButton    /// default data button
+#stressTestDataUpload   ///Upload data
+#stressTestDataUploadUI ///Upload Buttion
+#stressTestData()  //// processed stressTest dataframe
+
+#stressTestDataTbl()
+#stressTestDataTbl_button
+#stressTestDataTblBttnUI
+
+
+#GCMDataFileUpload
+#GCMDataFileUploadUI
+#GCMDataDF()
 
 appServer <- function(input, output, session) {
 
 
-### Stress Test Data Processing ###
+
+  ## Stress test results upload (UI element)
+  output$stressTestDataUploadUI = renderUI({
+     fileInput("stressTestDataUpload", label = "Upload stress test datafile (csv)", multiple = F, accept = ".csv", width = '95%')
+   })
+
+  # ### Stress Test Data (user interactive)
+  # stressTestData <- eventReactive(input$demoButton, {
+  #     read.csv("./data/stress_test_sample_data_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
+  #   })
+
   stressTestData <- reactive({
 
-    req(input$strTestData)
-    read.csv(input$strTestData$datapath, header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
-  })
-
-### File Uploaders
-  output$strTestDataUI = renderUI({
-    fileInput("strTestData", label = NULL, multiple = F, accept = ".csv", width = '100%')
-  })
-  output$GCMDataUI     = renderUI({
-    req(input$strTestData)
-    fileInput("GCMData", NULL, multiple = F, accept = ".csv", width = '100%')
+    # if (input$demoButton == TRUE) {
+    #   read.csv("./data/stress_test_sample_data_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
+    # } else {
+      if (!is.null(input$stressTestDataUpload)) {
+        read.csv(input$stressTestDataUpload$datapath, header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
+      }
+  #  }
   })
 
 
-### Data Tables
-  output$strTestDataTbl = renderDataTable({
-
-    datatable(stressTestData(),
-        options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
-        class = 'cell-border stripe') %>%
-     formatRound(columns = sapply(stressTestData(), is.numeric), digits = 2) %>%
-     formatRound(columns = 0, digits = 0)
+  output$demoButtonUI  = renderUI({
+    actionBttn(
+      inputId = "demoButton",
+      label = "Live Demo",
+      style = "material-flat",
+      size = "xs",
+      color = "default"
+    )
   })
-  output$GCMDataTbl     = renderDataTable({
 
-    datatable(GCMData(),
-              options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
-              class = 'cell-border stripe') %>%
-      formatRound(columns = sapply(GCMData(), is.numeric), digits = 2) %>%
-      formatRound(columns = 0, digits = 0)
-  })
+  # ### Stress Test Data results viewing
+  # output$stressTestDataTbl = renderDataTable({
+  #
+  #   if (!is.null(stressTestData())) {
+  #     datatable(stressTestData(),
+  #         options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
+  #         class = 'cell-border stripe') %>%
+  #      formatRound(columns = sapply(stressTestData(), is.numeric), digits = 2) %>%
+  #      formatRound(columns = 0, digits = 0)
+  #   }
+  # })
+  # output$stressTestDataTblBttnUI  = renderUI({
+  #   req(input$stressTestDataUpload)
+  #   actionBttn(
+  #     inputId = "stressTestDataTblBttn",
+  #     label = "View Data",
+  #     style = "material-flat",
+  #     size = "xs",
+  #     color = "default"
+  #   )
+  # })
 
 
 ### RENDER CLIMATE RESPONSE SURFACE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+  output$variable.xUI  = renderUI({
+    req(stressTestData())
+    pickerInput("variable.x", label = "X-Axis variable: ", choices = colnames(stressTestData()),
+                selected = colnames(stressTestData())[1], width = '95%')
+
+  })
+  output$variable.yUI  = renderUI({
+    req(stressTestData())
+    pickerInput("variable.y", label = "Y-Axis variable: ", choices = colnames(stressTestData()),
+                selected = colnames(stressTestData())[2], width = '95%')
+  })
+  output$variable.zUI  = renderUI({
+    req(stressTestData())
+    pickerInput("variable.z", label = "Z-Axis: variable", choices = colnames(stressTestData()),
+                selected = colnames(stressTestData())[3], width = '95%')
+  })
+  output$plot.titleUI  = renderUI({
+    req(stressTestData())
+    textInput("plot.title", label = "Plot title", width = '95%')
+  })
+  output$variable.x.labelUI  = renderUI({
+    req(stressTestData())
+    textInput("variable.x.label", label = "X-label", width = '95%')
+  })
+  output$variable.y.labelUI  = renderUI({
+    req(stressTestData())
+    textInput("variable.y.label", label = "Y-label", width = '95%')
+  })
+  output$variable.z.labelUI  = renderUI({
+    req(stressTestData())
+    textInput("variable.z.label", label = "Z-label", width = '95%')
+  })
+
+  output$pthresholdUI     = renderUI({
+    req(stressTestData())
+    sliderInput(inputId = "pthreshold",
+                label = "Performance Threshold",
+                ticks = FALSE,
+                step  = NULL, #this needs to be fixed
+                min   = stressTestData() %>% pull(input$variable.z) %>% min()  %>% floor(),
+                max   = stressTestData() %>% pull(input$variable.z) %>% max()  %>% ceiling(),
+                value = stressTestData() %>% pull(input$variable.z) %>% mean() %>% round(),
+                round = 0,
+                width = '95%'
+    )
+  })
+
+  #### CHeck Boxes
+  output$plot.colorsUI    = renderUI({
+    req(stressTestData())
+    awesomeCheckbox("plot.colors", label="Flip colors", value = FALSE)
+  })
+  output$plot.legendUI    = renderUI({
+    req(stressTestData())
+    awesomeCheckbox("plot.legend", label= "Hide legend", value = FALSE)
+  })
+
+  output$variable.z.minUI  = renderUI({
+    req(stressTestData())
+    numericInput("variable.z.min", label = "Min. value", width = '95%',
+                 value = stressTestData() %>% pull(input$variable.z) %>% min() %>% floor())
+  })
+
+  output$variable.z.maxUI  = renderUI({
+    req(stressTestData())
+    numericInput("variable.z.max", label = "Max. value", width = '95%',
+                 value = stressTestData() %>% pull(input$variable.z) %>% max() %>% ceiling())
+  })
+
+  output$variable.z.binUI  = renderUI({
+    req(stressTestData())
+    numericInput("variable.z.bin", label = "Bin num.", width = '95%', value = 20)
+  })
+
+
+  color.low  <- col1
+  color.high <- col2
 
   SurfacePlot <- reactive({
 
     req(input$pthreshold, input$variable.x, input$variable.y, input$variable.z)
 
-    col1 <- "red2"; col2 <- "royalblue3"
-    rcp_col <- c("#08519c", "cyan3", "#fe9929", "#f03b20")
+    #variable.z.minUI
+    #variable.z.maxUI
 
     # Set color scheme
     if(!is.null(input$plot.colors)) {
@@ -220,249 +272,148 @@ appServer <- function(input, output, session) {
     y_data <- stressTestData() %>% pull(input$variable.y)
     z_data <- stressTestData() %>% pull(input$variable.z)
 
-    # Default bin number and mid.point
-    z_bins <- pretty(c(min(z_data)*0.85, max(z_data)*1.15), 10)
     z_mid  <- input$pthreshold
-
-    # Specify x, y breaks
-    x_breaks <- unique(x_data)
-    y_breaks <- unique(y_data)
-
-    #z-dimension parameters
-    z_bins1 <- c(2*z_bins[1] - z_bins[2], z_bins, 2*z_bins[length(z_bins)] - z_bins[length(z_bins)-1])
-    zcut  <- binCentered(z_bins1)
-    variable.z.label  <- binCentered(zcut)
-
-    # Prepare data matrix
-    z_data[z_data < min(zcut)] <- zcut[1]
-    z_data[z_data > max(zcut)] <- zcut[length(zcut)]
-
-    res <- ifelse(input$plot.res == TRUE, 300, 100)
-
-    #df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = res) %>%
-    #  mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = variable.z.label)) %>%
-    #  mutate(z = as.numeric(as.character(z)))
+    z_min  <- min(z_data) %>% floor()
+    z_max  <- max(z_data) %>% ceiling()
+    z_bin  <- 20
 
 
-    df <- gridInterpolate(x = x_data , y = y_data, z = z_data, res = res) %>%
-      mutate(zint = z) %>%
-      mutate(z = cut(z, breaks = zcut, dig.lab = 5, include.lowest = T, right = T, labels = variable.z.label)) %>%
-      mutate(z = as.numeric(as.character(z))) %>%
-      group_by(x) %>%
-      mutate(zthold = abs(zint - z_mid)) %>%
-      mutate(tline = ifelse(zthold == min(zthold), 1, 0))
-
-    if(!is.null(input$plot.axis.int)) {
-
-      if(input$plot.axis.int == TRUE) {
-        x_breaks <- pretty(df$x, n = 9)
-        y_breaks <- pretty(df$y, n = 9)
-      }
+    if(!is.null(input$variable.z.min)) {
+      z_min  <- input$variable.z.min
+    }
+    if(!is.null(input$variable.z.max)) {
+      z_max  <- input$variable.z.max
+    }
+    if(!is.null(input$variable.z.bin)) {
+      z_bin  <- input$variable.z.bin
     }
 
-    df2 <- filter(df, tline>0)
 
+    # Specify x, y breaks
+    x_breaks  <- unique(x_data)
+    y_breaks  <- unique(y_data)
+    z_breaks  <- seq(z_min,z_max,length.out = z_bin)
+    z_breaks_legend <- pretty(range(z_breaks),5)
+
+    df = tibble(x = x_data, y = y_data, z = z_data)
+
+    # Core climate response surface
     p <- ggplot(df, aes(x = x, y = y)) +
-
       # Define theme
       theme_light(base_size = 15) +
-
       # Place z dimension
-      geom_tile(aes(fill = z), color = NA) +
-
+      geom_contour_fill(aes(z=z), breaks = z_breaks) +
       # Set scales
       scale_x_continuous(expand = c(0, 0), breaks = x_breaks) +
       scale_y_continuous(expand = c(0, 0), breaks = y_breaks) +
-      scale_fill_gradient2(low = color.low, mid = "white", high = color.high, midpoint = z_mid, limits = range(z_bins), breaks = z_bins) +
-
-
+      scale_fill_divergent(low = color.low, mid = "white", high = color.high, midpoint = z_mid, limits = range(z_breaks_legend), breaks = z_breaks_legend) +
       # Set labs
-      labs(x     = input$variable.x.label,
-           y     = input$variable.y.label,
-           color = NULL,
-           fill  = input$variable.z.label,
-           title = input$plot.title) +
-
+      labs(x = input$variable.x.label,y = input$variable.y.label,color = NULL, fill = input$variable.z.label,title = input$plot.title) +
       # Set guides
-      guides(fill  = guide_colorbar(nbin=length(z_bins), raster=F, barwidth=1.5, ticks = F, barheight = 20, order = 1),
-             color = guide_legend(order = 2)
-      ) +
-
+      guides(fill = guide_colorbar(raster=F, barwidth=1.5, ticks = TRUE, barheight = 20, order = 1), color = guide_legend(order = 2)) +
       # Threshold line
-      geom_line(aes(x, y), df2, size = 1)
+      geom_contour(aes(z = z), breaks = z_mid, color = "black", size = 1.5)
 
-      # Legend ON/OFF
-      if(!is.null(input$plot.legend)) {
-        if(input$plot.legend == TRUE) {
-          p <- p + theme(legend.position = "none")
-        }
+    if(!is.null(input$plot.legend)) {
+      if(input$plot.legend == TRUE) {
+        p <- p + theme(legend.position = "none")
       }
-
-      # GCM Dots
-      if(!is.null(input$GCMData)) {
-
-        # Find positions of scenarios
-        scenario_ind <- which(scenarios_list() %in% unique(GCMDataDF()$scenario))
-        scenario_col <- rcp_col[scenario_ind]
-
-        #if(input$GCM.scenarios == TRUE) {
-          p <- p +
-            scale_color_manual(values = scenario_col) +
-            geom_point(aes(color = scenario), data = GCMDataDF(), shape = 1, stroke = 2, size = 2.5, alpha = 0.9)
-        #}
-      }
-
-      ### GCM Contours
-      if(0.80 %in% input$gcm.contours) {
-        p <- p + stat_ellipse(data = GCMDataDF(), size = 1, linetype = "dotdash", level = 0.80)
-      }
-      if(0.90 %in% input$gcm.contours) {
-        p <- p + stat_ellipse(data = GCMDataDF(), size = 1, linetype = "dotdash", level = 0.90)
-      }
-      if(0.950 %in% input$gcm.contours) {
-        p <- p + stat_ellipse(data = GCMDataDF(), size = 1, linetype = "dotdash", level = 0.95)
-      }
-      if(0.99 %in% input$gcm.contours) {
-        p <- p + stat_ellipse(data = GCMDataDF(), size = 1, linetype = "dotdash", level = 0.99)
-      }
-      if(0.995 %in% input$gcm.contours) {
-        p <- p + stat_ellipse(data = GCMDataDF(), size = 1, linetype = "dotdash", level = 0.995)
-      }
-
-      if(!is.null(input$plot.histvalue)) {
-        if(input$plot.histvalue == TRUE) {
-          p <- p + geom_vline(xintercept = 0, linetype = "dashed", size = 0.7) +  geom_hline(yintercept = 0, linetype = "dashed", size = 0.7)
-        }
-      }
-
-      p
-
-  })
-  output$SurfacePlotUI <- renderPlot({
-
-    SurfacePlot()
-  })
-
-  plot_name <- reactive({ifelse(is.null(input$plot.title), "surfaceplot", input$plot.title)})
-
-  output$downloadPlot <- downloadHandler(
-    filename = function() {paste(plot_name(),'.png',sep='')},
-    content  = function(file){
-      ggsave(file, plot = SurfacePlot())
     }
-  )
-
-### Buttions
-  output$downloadPlotUI  = renderUI({
-
-    req(SurfacePlot())
-
-    downloadBttn(
-      outputId = "downloadPlot",
-      label = "Download",
-      style = "material-flat",
-      color = "default",
-      size = "xs"
-    )
-  })
-  output$stressTestDataTblBttnUI  = renderUI({
-    req(input$strTestData)
-    actionBttn(
-      inputId = "stressTestDataTblBttn",
-      label = "View Data",
-      style = "material-flat",
-      size = "sm",
-      color = "default"
-    )
-  })
-  output$GCMDataTblBttnUI  = renderUI({
-    req(input$strTestData)
-    actionBttn(
-      inputId = "GCMDataTblBttn",
-      label = "View",
-      style = "material-flat",
-      size = "sm",
-      color = "default"
-    )
-  })
 
 
-  output$variable.xUI  = renderUI({
-    req(stressTestData())
-    pickerInput("variable.x", label = "X-Axis variable: ", choices = colnames(stressTestData()),
-                selected = colnames(stressTestData())[1], width = '100%')
+    # GCM Dots
+    if(!is.null(GCMDataDF())) {
+
+      # Find positions of scenarios
+      scenario_ind <- which(scenarios_list() %in% unique(GCMDataDF()$scenario))
+      scenario_col <- rcp_col[scenario_ind]
+
+      #if(input$GCM.scenarios == TRUE) {
+      p <- p +
+        scale_color_manual(values = scenario_col) +
+        geom_point(aes(color = scenario), data = GCMDataDF(), shape = 1, stroke = 2, size = 3, alpha = 0.75)
+
+    }
+
+    if(!is.null(input$gcm.marginal)) {
+
+      if(input$gcm.marginal == TRUE) {
+
+        p_top  <- ggplot(GCMDataDF(), aes(x))+
+          scale_fill_manual(values = scenario_col) +
+          scale_color_manual(values = scenario_col) +
+          geom_density(aes(fill = scenario, color = scenario), alpha = 0.4, position="identity") +
+          scale_x_continuous(expand = c(0, 0), limits = c(0,5)) +
+          gg_blank +
+          theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
+
+        p_left  <- ggplot(GCMDataDF(), aes(y))+
+          scale_fill_manual(values = scenario_col) +
+          scale_color_manual(values = scenario_col) +
+          geom_density(aes(fill = scenario, color = scenario), alpha = 0.4, position="identity") +
+          scale_x_continuous(expand = c(0, 0), limits = c(-60,40)) +
+          coord_flip() + gg_blank +
+          theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
+
+        p <- ggarrange(empty, p_top, p_left, p, ncol=2, nrow=2, widths=c(1, 7), heights=c(1, 7))
+
+      }
+    }
+
+    if(!is.null(input$plot.histvalue)) {
+      if(input$plot.histvalue == TRUE) {
+        p <- p + geom_vline(xintercept = 0, linetype = "dashed", size = 0.7) +  geom_hline(yintercept = 0, linetype = "dashed", size = 0.7)
+      }
+    }
+
+    p #+ theme(plot.margin=grid::unit(c(1,1,1,1), "mm"))
 
   })
-  output$variable.yUI  = renderUI({
-    req(stressTestData())
-    pickerInput("variable.y", label = "Y-Axis variable: ", choices = colnames(stressTestData()),
-                selected = colnames(stressTestData())[2], width = '100%')
-  })
-  output$variable.zUI  = renderUI({
-    req(stressTestData())
-    pickerInput("variable.z", label = "Z-Axis: variable", choices = colnames(stressTestData()),
-                selected = colnames(stressTestData())[3], width = '100%')
-  })
-  output$variable.x.labelUI  = renderUI({
-    req(stressTestData())
-    textInput("variable.x.label", label = "Label", width = '85%')
-  })
-  output$variable.y.labelUI  = renderUI({
-    req(stressTestData())
-    textInput("variable.y.label", label = "Label", width = '85%')
-  })
-  output$variable.z.labelUI  = renderUI({
-    req(stressTestData())
-    textInput("variable.z.label", label = "Label", width = '85%')
-  })
-  output$plot.titleUI  = renderUI({
-    req(stressTestData())
-    textInput("plot.title", label = "Plot title", width = '85%')
-  })
 
-  output$pthresholdUI     = renderUI({
-    req(stressTestData())
-    sliderInput(inputId = "pthreshold",
-                label = "Performance Threshold",
-                ticks = FALSE,
-                step  = NULL, #this needs to be fixed
-                min   = stressTestData() %>% pull(input$variable.z) %>% min()  %>% round(),
-                max   = stressTestData() %>% pull(input$variable.z) %>% max()  %>% round(),
-                value = stressTestData() %>% pull(input$variable.z) %>% mean() %>% round(),
-                round = 0,
-                width = '92%'
-    )
-  })
+  output$SurfacePlotUI <- renderPlot(SurfacePlot())
 
-  #### CHeck Boxes
-  output$plot.resUI       = renderUI({
-    req(stressTestData())
-    awesomeCheckbox("plot.res", label="Increase plot resolution", value = FALSE)
-  })
-  output$plot.colorsUI    = renderUI({
-    req(stressTestData())
-    awesomeCheckbox("plot.colors", label="Flip fill colors", value = FALSE)
-  })
-  output$plot.legendUI    = renderUI({
-    req(stressTestData())
-    awesomeCheckbox("plot.legend", label= "Hide plot legend", value = FALSE)
-  })
-  output$plot.axis.intUI  = renderUI({
-    req(stressTestData())
-    awesomeCheckbox("plot.axis.int", label= "Override axis intervals", value = FALSE)
-  })
+
 
 ### GCM PROJECTIONS TAB ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ### Climate Projections Data Processing ###
 
+  # ### GCM results output table
+  # output$GCMDataTbl     = renderDataTable({
+  #
+  #   datatable(GCMData(),
+  #             options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
+  #             class = 'cell-border stripe') %>%
+  #     formatRound(columns = sapply(GCMData(), is.numeric), digits = 2) %>%
+  #     formatRound(columns = 0, digits = 0)
+  # })
+  # output$GCMDataTblBttn_DefaultUI  = renderUI({
+  #   actionBttn(
+  #     inputId = "GCMDataTblBttn_Default",
+  #     label = "Demo dataset2",
+  #     style = "material-flat",
+  #     size = "sm",
+  #     color = "default"
+  #   )
+  # })
+  #
+
   GCMData <- reactive({
 
-    req(input$GCMData)
-    read.csv(input$GCMData$datapath, header = TRUE, sep = ",",
-                     stringsAsFactors = TRUE, row.names = NULL)
-
+    if (!is.null(input$GCMDataFile)) {
+      read.csv(input$GCMData$datapath, header = TRUE, sep = ",", stringsAsFactors = T, row.names = NULL)
+    } else {
+      #if(input$GCMDataTblBttn_Default == T) {
+        read.csv("./data/gcm_delta_change_2050_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
+      #}
+    }
   })
+
+  output$GCMDataUI = renderUI({
+    req(!is.null(stressTestData()))
+    fileInput("GCMData", label = "Upload climate projections datafile (csv)", multiple = F, accept = ".csv", width = '95%')
+  })
+
 
   GCMDataDF <- reactive({
 
@@ -476,10 +427,6 @@ appServer <- function(input, output, session) {
       filter(model %in% input$models)
 
   })
-
-
-
-
   scenarios_list <- reactive({
 
     dat <- GCMData() %>% pull(scenario) %>% unique()
@@ -487,7 +434,7 @@ appServer <- function(input, output, session) {
     as.vector(dat)
 
   })
-  output$scenariosUI <- renderUI({
+  output$scenariosUI  <- renderUI({
 
     req(input$GCMData)
 
@@ -497,18 +444,18 @@ appServer <- function(input, output, session) {
         choices = scenarios_list(),
         selected = scenarios_list(),
         options = list(`actions-box` = TRUE),
-        multiple = TRUE
+        multiple = TRUE,
+        width = '95%'
       )
   })
-
-  models_list    <- reactive({
+  models_list  <- reactive({
 
     dat <- GCMData() %>% pull(model) %>% unique()
     names(dat) <- dat
     as.vector(dat)
 
   })
-  output$modelsUI    <- renderUI({
+  output$modelsUI     <- renderUI({
 
     req(input$GCMData)
 
@@ -518,35 +465,49 @@ appServer <- function(input, output, session) {
       choices = models_list(),
       selected = models_list(),
       options = list(`actions-box` = TRUE),
-      multiple = TRUE
+      multiple = TRUE,
+      width = '95%'
     )
   })
-
-  output$gcm.contoursUI = renderUI({
+  output$gcm.marginalUI = renderUI({
     req(input$GCMData)
-    checkboxGroupButtons(inputId = "gcm.contours",
-                    label   = "Confidence Intervals",
-                    selected = NULL,
-                    status = "primary",
-                    choiceNames  = c("80%", "90%", "95%", "99%", "99.5%"),
-                    choiceValues = c(0.80, 0.90, 0.95, 0.99, 0.995),
-                    checkIcon = list(
-                      yes = icon("ok",
-                                 lib = "glyphicon"),
-                      no = icon("remove",
-                                lib = "glyphicon"))
-    )
-
+    awesomeCheckbox("gcm.marginal", label= "Display marginal distributions", value = FALSE)
   })
 
-  output$plot.histvalueUI = renderUI({
-    req(input$GCMData)
-    awesomeCheckbox("plot.histvalue", label= "Hist. performance", value = FALSE)
+
+
+  # #### Dowload response surface
+  plot_name <- reactive({ifelse(is.null(input$plot.title), "surfaceplot", input$plot.title)})
+  output$downloadPlot <- downloadHandler(
+    filename = function() {paste(plot_name(),'.png',sep='')},
+    content  = function(file){
+      ggsave(file, plot = SurfacePlot(), height = 10, width = 12, units = "in")
+    }
+  )
+
+
+  output$downloadPlotUI  = renderUI({
+
+    req(SurfacePlot())
+
+    downloadBttn(
+      outputId = "downloadPlot",
+      label = "Download plot",
+      style = "material-flat",
+      color = "default",
+      size = "sm"
+    )
   })
 
 
   session$onSessionEnded(stopApp)
+
 }
+
+
+
+################################################################################
+
 
 ### APPLICATON -----------------------------------------------------------------
 

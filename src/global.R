@@ -10,6 +10,7 @@ library(tidyr)
 library(magrittr)
 library(tidyselect)
 library(ggplot2)
+
 library(shinydashboard)
 library(DT)
 library(shinycssloaders)
@@ -24,6 +25,12 @@ library(shinyWidgets)
 library(bsplus)
 library(data.table)
 library(DT)
+
+library(egg)
+library(dashboardthemes)
+library(metR)
+
+#library(ggExtra)
 
 #Shiny debugging
 options(shiny.reactlog = TRUE)
