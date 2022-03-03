@@ -69,7 +69,8 @@ body <- dashboardBody(
       fluidPage(
         br(), br(),
         column(12, align="center",
-           plotOutput("SurfacePlotUI", height = "700px", width = "800px") %>% withSpinner(),
+           #plotlyOutput("SurfacePlotUI", height = "600px", width = "750px") %>% withSpinner(),
+           plotOutput("SurfacePlotUI", height = "600px", width = "700px") %>% withSpinner(),
            br(),
            uiOutput("downloadPlotUI")
         )
@@ -255,9 +256,6 @@ appServer <- function(input, output, session) {
 
     req(input$pthreshold, input$variable.x, input$variable.y, input$variable.z)
 
-    #variable.z.minUI
-    #variable.z.maxUI
-
     # Set color scheme
     if(!is.null(input$plot.colors)) {
       if(input$plot.colors == TRUE) {
@@ -300,7 +298,7 @@ appServer <- function(input, output, session) {
     # Core climate response surface
     p <- ggplot(df, aes(x = x, y = y)) +
       # Define theme
-      theme_light(base_size = 15) +
+      theme_light(base_size = 14) +
       # Place z dimension
       geom_contour_fill(aes(z=z), breaks = z_breaks) +
       # Set scales
@@ -320,7 +318,6 @@ appServer <- function(input, output, session) {
       }
     }
 
-
     # GCM Dots
     if(!is.null(GCMDataDF())) {
 
@@ -329,8 +326,7 @@ appServer <- function(input, output, session) {
       scenario_col <- rcp_col[scenario_ind]
 
       #if(input$GCM.scenarios == TRUE) {
-      p <- p +
-        scale_color_manual(values = scenario_col) +
+      p <- p + scale_color_manual(values = scenario_col) +
         geom_point(aes(color = scenario), data = GCMDataDF(), shape = 1, stroke = 2, size = 3, alpha = 0.75)
 
     }
@@ -344,25 +340,20 @@ appServer <- function(input, output, session) {
           scale_color_manual(values = scenario_col) +
           geom_density(aes(fill = scenario, color = scenario), alpha = 0.4, position="identity") +
           scale_x_continuous(expand = c(0, 0), limits = c(0,5)) +
-          gg_blank +
-          theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
+          gg_blank + guides(fill=FALSE, color = FALSE) #+
+          #theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
 
         p_left  <- ggplot(GCMDataDF(), aes(y))+
           scale_fill_manual(values = scenario_col) +
           scale_color_manual(values = scenario_col) +
           geom_density(aes(fill = scenario, color = scenario), alpha = 0.4, position="identity") +
           scale_x_continuous(expand = c(0, 0), limits = c(-60,40)) +
-          coord_flip() + gg_blank +
-          theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
+          coord_flip() + gg_blank + guides(fill=FALSE, color = FALSE)
+          #theme(legend.position  = "none") #, panel.border = element_rect(color = "gray80", fill=NA))
 
         p <- ggarrange(empty, p_top, p_left, p, ncol=2, nrow=2, widths=c(1, 7), heights=c(1, 7))
-
-      }
-    }
-
-    if(!is.null(input$plot.histvalue)) {
-      if(input$plot.histvalue == TRUE) {
-        p <- p + geom_vline(xintercept = 0, linetype = "dashed", size = 0.7) +  geom_hline(yintercept = 0, linetype = "dashed", size = 0.7)
+        #p <- subplot(empty, p_top, p_left, p, nrows=2, widths=c(0.15, 0.85), heights=c(0.15, 0.85),
+        #             shareX = TRUE, shareY = TRUE)
       }
     }
 
@@ -370,9 +361,9 @@ appServer <- function(input, output, session) {
 
   })
 
+
+  #output$SurfacePlotUI <- renderPlotly(SurfacePlot())
   output$SurfacePlotUI <- renderPlot(SurfacePlot())
-
-
 
 ### GCM PROJECTIONS TAB ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -398,22 +389,24 @@ appServer <- function(input, output, session) {
   # })
   #
 
+
+
+  output$GCMDataUI = renderUI({
+    req(!is.null(stressTestData()))
+    fileInput("GCMDataUpload", label = "Upload climate projections datafile (csv)", multiple = F, accept = ".csv", width = '95%')
+  })
+
+
   GCMData <- reactive({
 
-    if (!is.null(input$GCMDataFile)) {
-      read.csv(input$GCMData$datapath, header = TRUE, sep = ",", stringsAsFactors = T, row.names = NULL)
+    if (!is.null(input$GCMDataUpload)) {
+      read.csv(input$GCMDataUpload$datapath, header = TRUE, sep = ",", stringsAsFactors = T, row.names = NULL)
     } else {
       #if(input$GCMDataTblBttn_Default == T) {
         read.csv("./data/gcm_delta_change_2050_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
       #}
     }
   })
-
-  output$GCMDataUI = renderUI({
-    req(!is.null(stressTestData()))
-    fileInput("GCMData", label = "Upload climate projections datafile (csv)", multiple = F, accept = ".csv", width = '95%')
-  })
-
 
   GCMDataDF <- reactive({
 
@@ -436,7 +429,7 @@ appServer <- function(input, output, session) {
   })
   output$scenariosUI  <- renderUI({
 
-    req(input$GCMData)
+    req(input$GCMDataUpload)
 
       pickerInput(
         inputId = "scenarios",
@@ -457,7 +450,7 @@ appServer <- function(input, output, session) {
   })
   output$modelsUI     <- renderUI({
 
-    req(input$GCMData)
+    req(input$GCMDataUpload)
 
     pickerInput(
       inputId = "models",
@@ -470,7 +463,7 @@ appServer <- function(input, output, session) {
     )
   })
   output$gcm.marginalUI = renderUI({
-    req(input$GCMData)
+    req(input$GCMDataUpload)
     awesomeCheckbox("gcm.marginal", label= "Display marginal distributions", value = FALSE)
   })
 
@@ -478,12 +471,14 @@ appServer <- function(input, output, session) {
 
   # #### Dowload response surface
   plot_name <- reactive({ifelse(is.null(input$plot.title), "surfaceplot", input$plot.title)})
+
   output$downloadPlot <- downloadHandler(
     filename = function() {paste(plot_name(),'.png',sep='')},
     content  = function(file){
-      ggsave(file, plot = SurfacePlot(), height = 10, width = 12, units = "in")
+      ggsave(file, plot = SurfacePlot(), height = 8, width = 10, units = "in")
     }
   )
+
 
 
   output$downloadPlotUI  = renderUI({

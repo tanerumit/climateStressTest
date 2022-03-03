@@ -29,6 +29,8 @@ library(DT)
 library(egg)
 library(dashboardthemes)
 library(metR)
+library(plotly)
+
 
 #library(ggExtra)
 

@@ -110,7 +110,7 @@ customOneNote <- shinyDashboardThemeDIY(
   ,sidebarSearchBorderColor = "rgb(210,210,210)"
 
   ,sidebarTabTextColor = "rgb(0,0,0)"
-  ,sidebarTabTextSize = 18
+  ,sidebarTabTextSize = 16
   ,sidebarTabBorderStyle = "none"
   ,sidebarTabBorderColor = ""
   ,sidebarTabBorderWidth = 0
