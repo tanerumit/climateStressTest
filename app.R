@@ -119,7 +119,8 @@ appServer <- function(input, output, session) {
 
   ## Stress test results upload (UI element)
   output$stressTestDataUploadUI = renderUI({
-     fileInput("stressTestDataUpload", label = "Upload stress test datafile (csv)", multiple = F, accept = ".csv", width = '95%')
+     fileInput("stressTestDataUpload",
+       label = "Upload stress test datafile (csv)", multiple = F, accept = ".csv", width = '95%')
    })
 
   # ### Stress Test Data (user interactive)
@@ -129,12 +130,10 @@ appServer <- function(input, output, session) {
 
   stressTestData <- reactive({
 
-    # if (input$demoButton == TRUE) {
-    #   read.csv("./data/stress_test_sample_data_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
-    # } else {
-      if (!is.null(input$stressTestDataUpload)) {
+    req(input$stressTestDataUpload)
+      #if (!is.null(input$stressTestDataUpload)) {
         read.csv(input$stressTestDataUpload$datapath, header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
-      }
+      #}
   #  }
   })
 
@@ -215,7 +214,7 @@ appServer <- function(input, output, session) {
                 step  = NULL, #this needs to be fixed
                 min   = stressTestData() %>% pull(input$variable.z) %>% min()  %>% floor(),
                 max   = stressTestData() %>% pull(input$variable.z) %>% max()  %>% ceiling(),
-                value = stressTestData() %>% pull(input$variable.z) %>% mean() %>% round(),
+                value = 35,
                 round = 0,
                 width = '95%'
     )
@@ -290,8 +289,8 @@ appServer <- function(input, output, session) {
     # Specify x, y breaks
     x_breaks  <- unique(x_data)
     y_breaks  <- unique(y_data)
-    z_breaks  <- seq(z_min,z_max,length.out = z_bin)
-    z_breaks_legend <- pretty(range(z_breaks),5)
+    z_breaks  <- round(seq(z_min,z_max,length.out = z_bin))
+    z_breaks_legend <- pretty(range(z_breaks),9)
 
     df = tibble(x = x_data, y = y_data, z = z_data)
 
@@ -304,11 +303,15 @@ appServer <- function(input, output, session) {
       # Set scales
       scale_x_continuous(expand = c(0, 0), breaks = x_breaks) +
       scale_y_continuous(expand = c(0, 0), breaks = y_breaks) +
-      scale_fill_divergent(low = color.low, mid = "white", high = color.high, midpoint = z_mid, limits = range(z_breaks_legend), breaks = z_breaks_legend) +
+      scale_fill_divergent(low = color.low, mid = "white", high = color.high, midpoint = z_mid,
+         limits = range(z_breaks), breaks = z_breaks,
+         guide = guide_coloursteps(barwidth=1.5, show.limits=TRUE, ticks = TRUE, barheight = 20, order = 1, draw.ulim = FALSE)) +
       # Set labs
       labs(x = input$variable.x.label,y = input$variable.y.label,color = NULL, fill = input$variable.z.label,title = input$plot.title) +
       # Set guides
-      guides(fill = guide_colorbar(raster=F, barwidth=1.5, ticks = TRUE, barheight = 20, order = 1), color = guide_legend(order = 2)) +
+      guides(color = guide_legend(order = 2)) +
+      #guides(fill = guide_coloursteps(barwidth=1.5, show.limits, ticks = TRUE, barheight = 20, order = 1),
+      #       color = guide_legend(order = 2)) +
       # Threshold line
       geom_contour(aes(z = z), breaks = z_mid, color = "black", size = 1.5)
 
@@ -367,30 +370,6 @@ appServer <- function(input, output, session) {
 
 ### GCM PROJECTIONS TAB ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-### Climate Projections Data Processing ###
-
-  # ### GCM results output table
-  # output$GCMDataTbl     = renderDataTable({
-  #
-  #   datatable(GCMData(),
-  #             options = list(lengthChange = FALSE, searching = FALSE, columnDefs = list(list(className = 'dt-left', targets = "_all"))),
-  #             class = 'cell-border stripe') %>%
-  #     formatRound(columns = sapply(GCMData(), is.numeric), digits = 2) %>%
-  #     formatRound(columns = 0, digits = 0)
-  # })
-  # output$GCMDataTblBttn_DefaultUI  = renderUI({
-  #   actionBttn(
-  #     inputId = "GCMDataTblBttn_Default",
-  #     label = "Demo dataset2",
-  #     style = "material-flat",
-  #     size = "sm",
-  #     color = "default"
-  #   )
-  # })
-  #
-
-
-
   output$GCMDataUI = renderUI({
     req(!is.null(stressTestData()))
     fileInput("GCMDataUpload", label = "Upload climate projections datafile (csv)", multiple = F, accept = ".csv", width = '95%')
@@ -403,7 +382,7 @@ appServer <- function(input, output, session) {
       read.csv(input$GCMDataUpload$datapath, header = TRUE, sep = ",", stringsAsFactors = T, row.names = NULL)
     } else {
       #if(input$GCMDataTblBttn_Default == T) {
-        read.csv("./data/gcm_delta_change_2050_default.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
+        read.csv("./data/interpret_climate_information.csv", header = T, sep = ",", stringsAsFactors = T, row.names = NULL)
       #}
     }
   })
