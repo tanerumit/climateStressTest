@@ -3,8 +3,6 @@ source("./src/global.R")
 source("./src/functions.R")
 source("./src/createResponseSurface.R")
 
-library(ggstar)
-
 ### UI-SIDE --------------------------------------------------------------------
 
 #### Dashboard sidebar elements
