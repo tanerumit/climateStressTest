@@ -35,6 +35,8 @@ createSurfacePlot <- function(
     plot.title = "response surface",
     scenarios_list = c("rcp26", "rcp45", "rcp60", "rcp85"),
     plot.gcm.marginal.dist = TRUE,
+    z_min = NULL,
+    z_max = NULL,
     z_bin = 15,
     z_min_legend = NULL,
     z_max_legend = NULL,
@@ -72,20 +74,21 @@ createSurfacePlot <- function(
     x_breaks  <- unique(str.data[[variable.x]])
     y_breaks  <- unique(str.data[[variable.y]])
 
-    # Z-range for the legend
-    z_min  <- min(str.data[[variable.z]]) 
-    z_max  <- max(str.data[[variable.z]]) 
+    # Z-range
+    if(is.null(z_min)) z_min <- min(str.data[[variable.z]])
+    if(is.null(z_max)) z_max <- max(str.data[[variable.z]])
     z_breaks <- seq(z_min, z_max, length.out = z_bin)
 
+    # Z-range legend
     if(is.null(z_min_legend)) z_min_legend  <- z_min
     if(is.null(z_max_legend)) z_max_legend  <- z_max
     if(is.null(z_bin_legend)) z_bin_legend  <- z_bin
-    
+
     z_breaks_legend <- pretty(c(z_min_legend, z_max_legend), z_bin_legend)
 
     if(is.null(threshold.z)) threshold.z  <- mean(str.data[[variable.z]])
-    
-    
+
+
     # Core climate response surface
     p <- ggplot(str.data, aes(x = .data[[variable.x]], y = .data[[variable.y]])) +
 
@@ -93,10 +96,10 @@ createSurfacePlot <- function(
       gg_theme_surface() +
 
       # Place z dimension
-      geom_contour_filled(aes(z = .data[[variable.z]], 
+      geom_contour_filled(aes(z = .data[[variable.z]],
                               fill = stat(level_mid)),
                               breaks = z_breaks) +
-      geom_contour(aes(z = .data[[variable.z]]), 
+      geom_contour(aes(z = .data[[variable.z]]),
                    breaks = threshold.z,
                    color = "black", size = 1.5) +
 
